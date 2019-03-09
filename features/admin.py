@@ -25,6 +25,19 @@ class Admin(Cog):
         em.set_thumbnail(url=member.avatar_url)
         await ctx.send(embed=em)
 
+    @command("kick", help="kick someone")
+    @perms_or_sudo('kick_members')
+    async def ban(self, ctx: Context, member: Member, *, reason: Optional[str] = None):
+        if not await ctx.bot.is_owner(member):
+            await member.kick(reason=reason)
+        em = Embed(
+            title="kick successfull",
+            description=f"**{member.display_name}** has been kicked",
+            color=0xFF0000
+        )
+        em.set_thumbnail(url=member.avatar_url)
+        await ctx.send(embed=em)
+
 
 def setup(bot):
     bot.add_cog(Admin())
