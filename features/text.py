@@ -43,7 +43,7 @@ class Text(Cog):
                 "unsure", "i cannot say",
                 "probably not", "very unlikely", "unlikely",
                 "no", "definitely not", "nope"
-            ]), # todo expre -> var
+            ]),  # todo expre -> var
             color=0xFF00AA)
         )
 
@@ -51,9 +51,30 @@ class Text(Cog):
     async def dice(self, ctx: Context):
         await ctx.send(embed=Embed(
             title="you threw a dice :game_die:",
-            description=f"you rolled a :{['zero', 'one', 'two', 'three', 'four', 'five', 'six'][randint(1, 6)]}:", # todo expre -> var
+            description=f"you rolled a :{['zero', 'one', 'two', 'three', 'four', 'five', 'six'][randint(1, 6)]}:",
+            # todo expre -> var
             color=0xFF00AA
         ))
+
+    @command("divergence", help="get your attractor field/divergence")
+    async def divergence(self, ctx: Context):
+        worldlines = {
+            " ": "Omega",
+            "0": "Alpha",
+            "1": "Beta",
+            "2": "Gamma",
+            "3": "Delta"
+        }
+        divline = choice(list(worldlines.keys()))
+        fstr = divline + "."
+        for i in range(6):
+            fstr += choice("0123456789")
+        em = Embed(
+            title="the divergence meter says",
+            description=f"you are in the {worldlines[divline]} attractor field ({fstr.replace(' ', '-')})",
+            color=0xFF00AA
+        )
+        await ctx.send(embed=em)
 
 
 def setup(bot):
