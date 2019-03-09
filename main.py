@@ -34,11 +34,14 @@ class Useful(Bot):
         elif type(exception) == CommandInvokeError:
             await self.on_command_error(context, exception.__cause__)
         elif type(exception) == Forbidden:
-            await context.send(embed=Embed(
-                title=f"i can't do that",
-                description="i am missing permissions",
-                color=0xFF0000
-            ))
+            try:
+                await context.send(embed=Embed(
+                    title=f"i can't do that",
+                    description="i am missing permissions",
+                    color=0xFF0000
+                ))
+            except Forbidden:
+                pass
         else:
             await context.send(embed=Embed(
                 title=f"an internal error occured ({type(exception).__name__})",
