@@ -17,6 +17,14 @@ class Owner(Cog):
             color=0x00FF00 if state else 0xFF0000
         ))
 
+    @command("counter", hidden=True)
+    @is_owner()
+    async def counter(self, ctx: Context):
+        await ctx.send(embed=Embed(
+            title=str(ctx.bot.counter),
+            color=0xFF00AA
+        ))
+
 
 def setup(bot):
     bot.add_cog(Owner())

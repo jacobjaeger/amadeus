@@ -1,4 +1,5 @@
-from discord.ext.commands import Bot, CommandNotFound, MissingRequiredArgument, MissingPermissions, CommandInvokeError
+from discord.ext.commands import Bot, CommandNotFound, MissingRequiredArgument, MissingPermissions, CommandInvokeError, \
+    Context
 from discord import Embed, Guild, Game, Forbidden
 from os import listdir
 from features.common import invalid_arg
@@ -13,12 +14,19 @@ class Useful(Bot):
     def __init__(self, conf, *args, **kwargs):
         super(Useful, self).__init__(*args, **kwargs)
         self.conf = conf
+        self.counter = 0
         self.reddit = Reddit(
             client_id=conf["reddit"]["client_id"],
             client_secret=conf["reddit"]["client_secret"],
             user_agent=conf["reddit"]["user_agent"]
         )
         self.sudo = False
+
+    def log_error(self, msg):
+        print(f"\033[31m{msg}\033[0m")
+
+    def log(self, msg):
+        print(f"\033[36m{msg}\033[0m")
 
     async def on_command_error(self, context, exception):
         if type(exception) == CommandNotFound:
@@ -48,23 +56,29 @@ class Useful(Bot):
                 description=str(exception),
                 color=0xFF0000
             ))
-            print("\033[31m" + type(exception).__name__ + ": " + str(exception) + "\033[0m")
+            self.log_error(type(exception).__name__ + ": " + str(exception))
 
     async def on_ready(self):
-        print("bot is ready")
-        self._owner_id = (await self.application_info()).owner.id  # this is set to be able to get the owner in a blocking manner through self.cmp_owner_id
+        self.log("bot is ready")
+        self._owner_id = (
+            await self.application_info()).owner.id  # this is set to be able to get the owner in a blocking manner through self.cmp_owner_id
         await self.change_presence(activity=Game(name=f"on {len([i for i in self.guilds])} servers"))
 
     async def on_guild_join(self, server: Guild):
-        print("joined server")
+        self.log("joined server")
         await self.change_presence(activity=Game(name=f"on {len([i for i in self.guilds])} servers"))
 
     async def on_guild_remove(self, server: Guild):
-        print("left server")
+        self.log("left server")
         await self.change_presence(activity=Game(name=f"on {len([i for i in self.guilds])} servers"))
 
     def cmp_owner_id(self, id):  # -> self.on_ready
         return id == self._owner_id
+
+
+async def _check(ctx: Context):
+    ctx.bot.counter += 1
+    ctx.bot.log(f"[command called by {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})] " + ctx.message.content)
 
 
 if __name__ == '__main__':
@@ -74,6 +88,7 @@ if __name__ == '__main__':
     with conf.f as f:
         config = load(f)
     useful = Useful(config, ("a!", "<@373252109753384960> "))
+    useful.before_invoke(_check)
     for i in listdir("features"):
         if i != "__pycache__":
             useful.load_extension("features." + (i if not i.endswith(".py") else i[:-3]))
