@@ -8,7 +8,7 @@ from praw import Reddit
 
 
 class Useful(Bot):
-    version = (2, 0, 0)
+    version = (2, 22)
 
     def __init__(self, conf, *args, **kwargs):
         super(Useful, self).__init__(*args, **kwargs)
