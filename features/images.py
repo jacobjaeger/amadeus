@@ -44,7 +44,14 @@ class Images(Cog):
     async def reddit(self, ctx: Context, subreddit):
         em = Embed(color=0xFF00AA)
         em.set_author(name="here ya go")
-        sub = ctx.bot.reddit.subreddit(subreddit)
+        sub = ctx.bot.reddit.subreddit(subreddit)  # Fetch the requested subreddit
+        if sub.over18 and not ctx.channel.is_nsfw():  # If the requested sub is NSFW but the current channel is not, the bot is supposed to stop working
+            await ctx.send(embed=Embed(
+                text="nsfw error",
+                description="it seems like the sub you've request is nsfw while this channel is not, please try again in an nsfw channel",
+                color=0xFF0000
+            ))
+            return
         em.set_image(url=choice([i for i in ctx.bot.reddit.subreddit(subreddit).hot(limit=50)]).url)
         await ctx.send(embed=em)
 
