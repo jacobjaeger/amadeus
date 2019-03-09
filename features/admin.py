@@ -1,5 +1,5 @@
-from discord.ext.commands import Cog, command, Context
-from discord import Embed, TextChannel
+from discord.ext.commands import Cog, command, Context, Bot
+from discord import Embed, Member
 from aiohttp import ClientSession
 from .common import invalid_arg, perms_or_sudo
 from random import choice
@@ -11,6 +11,19 @@ class Admin(Cog):
     @perms_or_sudo('manage_messages')
     async def purge(self, ctx: Context, n: Optional[int] = 100):
         await ctx.channel.purge(limit=n + 1)
+
+    @command("ban", help="ban someone")
+    @perms_or_sudo('ban_members')
+    async def ban(self, ctx: Context, member: Member, *, reason: Optional[str] = None):
+        if not await ctx.bot.is_owner(member):
+            await member.ban(reason=reason)
+        em = Embed(
+            title="ban successfull",
+            description=f"**{member.display_name}** has been banned",
+            color=0xFF0000
+        )
+        em.set_thumbnail(url=member.avatar_url)
+        await ctx.send(embed=em)
 
 
 def setup(bot):
