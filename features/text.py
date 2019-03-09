@@ -1,9 +1,10 @@
 from discord.ext.commands import Cog, command, Context
-from discord import Embed
+from discord import Embed, Member
+import discord
 from aiohttp import ClientSession
 from .common import invalid_arg
 from random import choice, randint
-from typing import Optional
+from typing import Optional, Union
 
 
 class Text(Cog):
@@ -75,6 +76,44 @@ class Text(Cog):
             color=0xFF00AA
         )
         await ctx.send(embed=em)
+
+
+    @command("info", help="show info about a member/channel")
+    async def info(self, ctx: Context, item: Optional[Union[discord.Member, discord.TextChannel]] = None):
+        em = Embed(color=0xFF00AA)
+        em.set_footer(text=f"requested by {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})")
+        if type(item) == discord.Member:
+            await self._info_user(em, ctx, item)
+        elif type(item) == discord.TextChannel:
+            await self._info_channel(em, ctx, item)
+        elif type(item) == type(None):
+            await self._info_user(em, ctx, ctx.author)
+        await ctx.send(embed=em)
+
+    async def _info_user(self, embed: Embed, ctx: Context, user: Member):
+        embed.set_author(name=user.display_name, icon_url=user.avatar_url)
+        embed.add_field(name="name", value=f"{user.name}#{user.discriminator}")
+        embed.add_field(name="bot", value=str(user.bot).lower())
+        embed.add_field(name="joined", value=user.joined_at)
+        embed.add_field(name="created", value=user.created_at)
+        embed.add_field(name="top role", value=user.top_role.name)
+        embed.add_field(name="id", value=user.id)
+        if type(user.activity) == discord.Spotify:
+            name, val = "listening", f"{user.activity.artist} - {user.activity.title}"
+        elif type(user.activity) == discord.Streaming:
+            name, val = "streaming", f"[{user.activity.name}]({user.activity.url})"
+        elif type(user.activity) == discord.Game:
+            name, val = "playing", user.activity.name
+        else:
+            return
+        embed.add_field(name=name, value=val)  # noqa
+
+    async def _info_channel(self, embed: Embed, ctx: Context, channel: discord.TextChannel):
+        embed.set_author(name=f"#{channel.name}", icon_url=channel.guild.icon_url)
+        embed.add_field(name="id", value=channel.id)
+        embed.add_field(name="nsfw", value=str(channel.is_nsfw()).lower())
+        embed.add_field(name="created", value=channel.created_at)
+
 
 
 def setup(bot):
