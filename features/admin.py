@@ -27,7 +27,7 @@ class Admin(Cog):
 
     @command("kick", help="kick someone")
     @perms_or_sudo('kick_members')
-    async def ban(self, ctx: Context, member: Member, *, reason: Optional[str] = None):
+    async def kick(self, ctx: Context, member: Member, *, reason: Optional[str] = None):
         if not await ctx.bot.is_owner(member):
             await member.kick(reason=reason)
         em = Embed(
