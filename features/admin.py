@@ -10,7 +10,7 @@ class Admin(Cog):
     @command("purge", help="purge the last n (arg) messages from the current channel")
     @perms_or_sudo('manage_messages')
     async def purge(self, ctx: Context, n: Optional[int] = 100):
-        await ctx.channel.purge(limit=100)
+        await ctx.channel.purge(limit=n)
 
 
 def setup(bot):
