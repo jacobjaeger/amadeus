@@ -52,6 +52,7 @@ class Useful(Bot):
 
     async def on_ready(self):
         print("bot is ready")
+        self._owner_id = (await self.application_info()).owner.id  # this is set to be able to get the owner in a blocking manner through self.cmp_owner_id
         await self.change_presence(activity=Game(name=f"on {len([i for i in self.guilds])} servers"))
 
     async def on_guild_join(self, server: Guild):
@@ -61,6 +62,9 @@ class Useful(Bot):
     async def on_guild_remove(self, server: Guild):
         print("left server")
         await self.change_presence(activity=Game(name=f"on {len([i for i in self.guilds])} servers"))
+
+    def cmp_owner_id(self, id):  # -> self.on_ready
+        return id == self._owner_id
 
 
 if __name__ == '__main__':

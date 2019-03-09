@@ -17,7 +17,7 @@ def tail(obj):
 
 def perms_or_sudo(*args):
     def predicate(ctx: Context):
-        if ctx.bot.sudo and ctx.bot.is_owner():
+        if ctx.bot.sudo and ctx.bot.cmp_owner_id(ctx.author.id):
             return True
         has_perms = True
         perms = ctx.channel.permissions_for(ctx.author)
