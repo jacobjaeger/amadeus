@@ -11,7 +11,7 @@ async def help(ctx: Context, command: Optional[str] = None):
         emb.set_author(name="All available commands", icon_url=bot.user.avatar_url)
         for i in list(bot.cogs.items()):
             if not getattr(i[1], "hidden", False):
-                emb.add_field(name=i[0].lower(), value=", ".join([i.name for i in i[1].get_commands() if not i.hidden]),
+                emb.add_field(name=i[0].lower(), value=", ".join(['`' + i.name + '`' for i in i[1].get_commands() if not i.hidden]),
                               inline=False)
     else:
         if command not in bot.all_commands:
