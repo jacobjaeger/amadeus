@@ -66,7 +66,7 @@ if __name__ == '__main__':
     conf = argp.parse_args()
     with conf.f as f:
         config = load(f)
-    useful = Useful(config, "a!")
+    useful = Useful(config, ("a!", "<@373252109753384960> "))
     for i in listdir("features"):
         if i != "__pycache__":
             useful.load_extension("features." + (i if not i.endswith(".py") else i[:-3]))
