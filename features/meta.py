@@ -11,8 +11,8 @@ class Meta(Cog):
             color=0xFF00AA
         ))
 
-    @command("info", help="show info about the bot")
-    async def info(self, ctx: Context):
+    @command("about", help="show info about the bot")
+    async def about(self, ctx: Context):
         em = Embed(
             title="amadeus written by jcb1317",
         )
