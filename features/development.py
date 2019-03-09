@@ -1,9 +1,11 @@
 from discord.ext.commands import Cog, command, Context, is_owner
 from discord import Embed
 from re import compile
+from aiohttp import ClientSession
 import hashlib
 from typing import Optional
 from .common import invalid_arg
+import datetime
 
 
 class Development(Cog):
@@ -103,6 +105,66 @@ class Development(Cog):
         e.set_author(name=f"sha{str(type)} hash", icon_url=ctx.bot.user.avatar_url)
         e.add_field(name="hash", value=h.hexdigest())
         await ctx.send(embed=e)
+
+    @command("github", help="""look up a github user/repo""")
+    async def github(self, ctx: Context, user, repo: Optional[str] = None):
+        async with ClientSession() as s:
+            if repo is None:
+                async with s.get(f"https://api.github.com/users/{user}") as r:
+                    if r.status == 404:
+                        em = Embed(
+                            title="user not found",
+                            description=f"the specified user **{user}** does not exist",
+                            color=0xFF0000
+                        )
+                    else:
+                        data = await r.json()
+                        em = Embed(
+                            description=data["bio"],
+                            color=0xFF00AA
+                        )
+                        em.add_field(
+                            name="followers",
+                            value=data["followers"]
+                        )
+                        em.add_field(
+                            name="following",
+                            value=data["following"]
+                        )
+                        em.add_field(
+                            name="repos",
+                            value=data["public_repos"]
+                        )
+                        created_at = datetime.datetime.strptime(data["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+                        em.add_field(
+                            name="created at",
+                            value=created_at
+                        )
+                        em.set_author(name=data["name"], url=data["blog"] if "blog" in data else data["html_url"], icon_url=data["avatar_url"])
+            else:
+                async with s.get(f"https://api.github.com/repos/{user}/{repo}") as r:
+                    if r.status == 404:
+                        em = Embed(
+                            title="repo not found",
+                            description=f"the specified repo **{user}/{repo}** does not exist",
+                            color=0xFF0000
+                        )
+                    else:
+                        data = await r.json()
+                        em = Embed(
+                            description=data["description"] if data["description"] else "no description provided",
+                            color=0xFF00AA
+                        )
+                        em.add_field(
+                            name="license",
+                            value=data['license']['name']
+                        )
+                        em.add_field(
+                            name="language",
+                            value=data["language"]
+                        )
+                        em.set_author(name=data["full_name"], url=data["homepage"] if data["homepage"] else data["html_url"], icon_url=data["owner"]["avatar_url"])
+            await ctx.send(embed=em)
 
 
 def setup(bot):
