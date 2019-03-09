@@ -47,7 +47,7 @@ class Images(Cog):
         sub = ctx.bot.reddit.subreddit(subreddit)  # Fetch the requested subreddit
         if sub.over18 and not ctx.channel.is_nsfw():  # If the requested sub is NSFW but the current channel is not, the bot is supposed to stop working
             await ctx.send(embed=Embed(
-                text="nsfw error",
+                title="nsfw error",
                 description="it seems like the sub you've request is nsfw while this channel is not, please try again in an nsfw channel",
                 color=0xFF0000
             ))
