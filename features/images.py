@@ -3,6 +3,7 @@ from discord import Embed
 from aiohttp import ClientSession
 from .common import invalid_arg
 from random import choice
+from prawcore.exceptions import Redirect
 
 
 class Images(Cog):
@@ -44,7 +45,15 @@ class Images(Cog):
     async def reddit(self, ctx: Context, subreddit):
         em = Embed(color=0xFF00AA)
         em.set_author(name="here ya go")
-        sub = ctx.bot.reddit.subreddit(subreddit)  # Fetch the requested subreddit
+        try:
+            sub = ctx.bot.reddit.subreddit(subreddit)  # Fetch the requested subreddit
+        except Redirect:
+            await ctx.send(embed=Embed(
+                title="invalid subreddit",
+                description="the specified subreddit does not exist",
+                color=0xFF0000
+            ))
+            return
         if sub.over18 and not ctx.channel.is_nsfw():  # If the requested sub is NSFW but the current channel is not, the bot is supposed to stop working
             await ctx.send(embed=Embed(
                 title="nsfw error",
