@@ -140,7 +140,7 @@ class Development(Cog):
                             name="created at",
                             value=created_at
                         )
-                        em.set_author(name=data["name"], url=data["blog"] if "blog" in data else data["html_url"], icon_url=data["avatar_url"])
+                        em.set_author(name=data["name"] if data["name"] is not None else data["login"], url=data["blog"] if "blog" in data else data["html_url"], icon_url=data["avatar_url"])
             else:
                 async with s.get(f"https://api.github.com/repos/{user}/{repo}") as r:
                     if r.status == 404:
