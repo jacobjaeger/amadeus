@@ -6,6 +6,7 @@ from features.common import invalid_arg
 from json import load
 from argparse import FileType, ArgumentParser
 from praw import Reddit
+from datetime import datetime
 
 
 class Useful(Bot):
@@ -14,6 +15,7 @@ class Useful(Bot):
     def __init__(self, conf, *args, **kwargs):
         super(Useful, self).__init__(*args, **kwargs)
         self.conf = conf
+        self.active_since = datetime.now()
         self.counter = 0
         self.reddit = Reddit(
             client_id=conf["reddit"]["client_id"],
@@ -62,15 +64,15 @@ class Useful(Bot):
         self.log("bot is ready")
         self._owner_id = (
             await self.application_info()).owner.id  # this is set to be able to get the owner in a blocking manner through self.cmp_owner_id
-        await self.change_presence(activity=Game(name=f"on {len([i for i in self.guilds])} servers"))
+        await self.change_presence(activity=Game(name=f"on {len(self.guilds)} servers"))
 
     async def on_guild_join(self, server: Guild):
         self.log("joined server")
-        await self.change_presence(activity=Game(name=f"on {len([i for i in self.guilds])} servers"))
+        await self.change_presence(activity=Game(name=f"on {len(self.guilds)} servers"))
 
     async def on_guild_remove(self, server: Guild):
         self.log("left server")
-        await self.change_presence(activity=Game(name=f"on {len([i for i in self.guilds])} servers"))
+        await self.change_presence(activity=Game(name=f"on {len(self.guilds)} servers"))
 
     def cmp_owner_id(self, id):  # -> self.on_ready
         return id == self._owner_id
