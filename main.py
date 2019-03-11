@@ -55,7 +55,7 @@ class Useful(Bot):
         elif type(exception) == BadArgument:
             await context.send(embed=Embed(
                 title="invalid arguments",
-                description=exception,
+                description=str(exception),
                 color=0xFF0000
             ))
         else:
