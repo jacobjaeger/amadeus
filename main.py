@@ -30,9 +30,6 @@ class Useful(Bot):
     def log(self, msg):
         print(f"\033[36m{msg}\033[0m")
 
-    def is_premium(self, user):
-        return False
-
     async def on_command_error(self, context, exception):
         if type(exception) == CommandNotFound:
             return
