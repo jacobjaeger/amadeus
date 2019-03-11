@@ -77,10 +77,14 @@ class Useful(Bot):
     def cmp_owner_id(self, id):  # -> self.on_ready
         return id == self._owner_id
 
+    async def is_premium(self, user):
+        return False  # to be implemented
+
 
 async def _check(ctx: Context):
     ctx.bot.counter += 1
-    ctx.bot.log(f"[command called by {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})] " + ctx.message.content)
+    ctx.bot.log(
+        f"[command called by {ctx.author.name}#{ctx.author.discriminator} ({ctx.author.id})] " + ctx.message.content)
 
 
 if __name__ == '__main__':
