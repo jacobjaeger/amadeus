@@ -1,5 +1,5 @@
 from discord.ext.commands import Bot, CommandNotFound, MissingRequiredArgument, MissingPermissions, CommandInvokeError, \
-    Context
+    Context, BadArgument
 from discord import Embed, Guild, Game, Forbidden
 from os import listdir
 from features.common import invalid_arg
@@ -52,6 +52,12 @@ class Useful(Bot):
                 ))
             except Forbidden:
                 pass
+        elif type(exception) == BadArgument:
+            await context.send(embed=Embed(
+                title="invalid arguments",
+                description=exception,
+                color=0xFF0000
+            ))
         else:
             await context.send(embed=Embed(
                 title=f"an internal error occured ({type(exception).__name__})",
