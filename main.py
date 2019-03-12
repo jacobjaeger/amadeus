@@ -34,7 +34,7 @@ class TimeoutExecutor:
 
 
 class Useful(Bot):
-    version = (2, 23)
+    version = (2, 4)
 
     def __init__(self, conf, *args, **kwargs):
         super(Useful, self).__init__(*args, **kwargs)
