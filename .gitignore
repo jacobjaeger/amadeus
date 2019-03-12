@@ -106,3 +106,4 @@ venv.bak/
 # config.json (contains tokens)
 config.json
 .idea/
+amadeus\.db
