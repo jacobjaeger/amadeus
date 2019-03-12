@@ -77,11 +77,14 @@ class Useful(Bot):
                     await c.execute("update users set xp = xp + ? where id = ?", (ran, message.author.id))
                     lvl1, lvl2 = features.levels.Levels.level_from_xp(res[2]), features.levels.Levels.level_from_xp(res[2] + ran)
                     if lvl1 != lvl2:
-                        await message.channel.send(embed=Embed(
-                            title="you leveled up!",
-                            description=f"**{lvl1}** -> **{lvl2}**",
-                            color=0xFF00AA
-                        ))
+                        try:
+                            await message.channel.send(embed=Embed(
+                                title="you leveled up!",
+                                description=f"**{lvl1}** -> **{lvl2}**",
+                                color=0xFF00AA
+                            ))
+                        except Forbidden:
+                            pass
         else:
             await self.invoke(ctx)
 
