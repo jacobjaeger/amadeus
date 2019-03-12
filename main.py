@@ -173,7 +173,6 @@ class DBProxy:
             f"update users set {', '.join([i + ' = ?' for i in upd.keys()])} where id = ?",
             list(upd.values()) + [self.id]
         )
-        print(query)
         await db.execute(query[0], query[1])
 
 
