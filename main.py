@@ -1,6 +1,7 @@
 from discord.ext.commands import Bot, CommandNotFound, MissingRequiredArgument, MissingPermissions, CommandInvokeError, \
     Context, BadArgument
 from discord import Embed, Guild, Game, Forbidden
+import discord
 from os import listdir
 from features.common import invalid_arg
 from json import load
@@ -8,8 +9,28 @@ from argparse import FileType, ArgumentParser
 from praw import Reddit
 from datetime import datetime
 from asyncio import get_event_loop, new_event_loop
+from random import randint
 import sqlite3
 import aiosqlite
+import features.levels
+
+
+class TimeoutExecutor:
+    def __init__(self, loop=new_event_loop()):
+        self._mems = []
+        self._loop = loop
+
+    def __contains__(self, item):
+        return item in self._mems
+
+    def set(self, name):
+        if name in self:
+            return
+        self._mems.append(name)
+        self._loop.call_later(60, self.unset, name)
+
+    def unset(self, name):
+        self._mems.remove(name)
 
 
 class Useful(Bot):
@@ -20,6 +41,7 @@ class Useful(Bot):
         self.conf = conf
         self.active_since = datetime.now()
         self.counter = 0
+        self.to = TimeoutExecutor(self.loop)
         self.reddit = Reddit(
             client_id=conf["reddit"]["client_id"],
             client_secret=conf["reddit"]["client_secret"],
@@ -36,6 +58,33 @@ class Useful(Bot):
 
     def log(self, msg):
         print(f"\033[36m{msg}\033[0m")
+
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+        ctx: Context = await self.get_context(message)
+        if ctx.command is None and message.author.id not in self.to:
+            self.to.set(message.author.id)
+            async with self.db.execute("select * from users where id = ?", (message.author.id, )) as c:
+                res = await c.fetchone()
+                ran = randint(15, 25)
+                if res is None:
+                    await c.execute("insert into users values (?, ?, ?, ?)", (
+                        message.author.id, False, ran, ""
+                    ))
+                    increase = False
+                else:
+                    await c.execute("update users set xp = xp + ? where id = ?", (ran, message.author.id))
+                    lvl1, lvl2 = features.levels.Levels.level_from_xp(res[2]), features.levels.Levels.level_from_xp(res[2] + ran)
+                    if lvl1 != lvl2:
+                        await message.channel.send(embed=Embed(
+                            title="you leveled up!",
+                            description=f"**{lvl1}** -> **{lvl2}**",
+                            color=0xFF00AA
+                        ))
+        else:
+            await self.invoke(ctx)
+
 
     async def on_command_error(self, context, exception):
         if type(exception) == CommandNotFound:
@@ -126,9 +175,18 @@ class DBProxy:
         self._res[3] = res[3].split(":")
         self._before = self._res[3].copy()
 
+    @classmethod
+    async def make(cls, db, id):
+        async with db.execute("select * from users where id = ?", (id, )) as c:
+            res = await c.fetchone()
+            if res is None:
+                res = (id, False, 0, "")
+                await c.execute("insert into users values (?, ?, ?, ?)")
+            return cls(res)
+
     @property
     def xp(self):
-        return self._res[2]
+        return self._res[2] if "xp" not in self._update else self._update["xp"]
 
     @xp.setter
     def xp(self, value):
@@ -150,7 +208,7 @@ class DBProxy:
 
     @property
     def premium(self):
-        return self._res[1]
+        return self._res[1] if "premium" not in self._update else self._update["premium"]
 
     @premium.setter
     def premium(self, value):
@@ -196,4 +254,5 @@ if __name__ == '__main__':
         useful.run(config["token"])
     finally:
         useful.db._loop = new_event_loop()
+        useful.db._loop.run_until_complete(useful.db.commit())
         useful.db._loop.run_until_complete(useful.db.__aexit__(None, None, None))
