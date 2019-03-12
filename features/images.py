@@ -44,6 +44,16 @@ class Images(Cog):
                 em.set_image(url=json[0])
                 await ctx.send(embed=em)
 
+    @command("birb", help="shows a random birb")
+    async def birb(self, ctx: Context):
+        async with ClientSession() as s:
+            async with s.get("http://shibe.online/api/birds?count=1&urls=true&httpsUrls=true") as r:
+                json = await r.json()
+                em = Embed(color=0xFF00AA)
+                em.set_author(name="here ya go")
+                em.set_image(url=json[0])
+                await ctx.send(embed=em)
+
 
     @command("deepfried", help="shows a random deepfried meme")
     async def deepfried(self, ctx: Context):
