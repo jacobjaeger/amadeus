@@ -8,7 +8,7 @@ async def help(ctx: Context, command: Optional[str] = None):
     bot: Bot = ctx.bot
     if not command:
         emb: Embed = Embed(color=0xFF00AA)
-        emb.set_author(name="All available commands", icon_url=bot.user.avatar_url)
+        emb.set_author(name="all available commands | `a!<command name> <args...>`", icon_url=bot.user.avatar_url)
         for i in list(bot.cogs.items()):
             if not getattr(i[1], "hidden", False):
                 emb.add_field(name=i[0].lower(), value=", ".join(['`' + i.name + '`' for i in i[1].get_commands() if not i.hidden]),
