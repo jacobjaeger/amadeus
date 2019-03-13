@@ -115,6 +115,22 @@ class Text(Cog):
         embed.add_field(name="created", value=channel.created_at)
 
 
+    @command("jeopardy", help="shows a real jeopardy question/answer")
+    async def jeopardy(self, ctx: Context):
+        async with ClientSession() as s:
+            async with s.get("http://jservice.io/api/random") as r:
+                json = await r.json()
+                json = json[0]
+                em = Embed(
+                    title=f"{json['question'].lower()} [{json['value']}$]",
+                    description=f"||{json['answer']}||",
+                    color=0xFF00AA
+                )
+                em.set_author(name="jeopardy!", icon_url="http://img.brothersoft.com/icon/softimage/j/jeopardy_super_deluxe-359215-1271729985.jpeg")
+                em.set_footer(text=json["category"]["title"])
+                await ctx.send(embed=em)
+
+
 
 def setup(bot):
     bot.add_cog(Text())
