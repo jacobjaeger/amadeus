@@ -11,9 +11,15 @@ from praw import Reddit
 from datetime import datetime
 from asyncio import get_event_loop, new_event_loop
 from random import randint
+from functools import lru_cache
 import sqlite3
 import aiosqlite
 import features.levels
+import json
+
+default_config = {
+    "level_up": True
+}
 
 
 class TimeoutExecutor:
@@ -35,7 +41,8 @@ class TimeoutExecutor:
 
 
 class Useful(Bot):
-    version = (2, 7)
+    version = (2, 7, 1)
+    default_config = default_config
 
     def __init__(self, conf, *args, **kwargs):
         super(Useful, self).__init__(*args, **kwargs)
@@ -57,20 +64,19 @@ class Useful(Bot):
         for action in listdir(join("docs", "gifs")):
             self.gif_sizes[action] = len([i for i in listdir(join("docs", "gifs", action))])
 
-
     def log_error(self, msg):
         print(f"\033[31m{msg}\033[0m")
 
     def log(self, msg):
         print(f"\033[36m{msg}\033[0m")
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
         ctx: Context = await self.get_context(message)
         if ctx.command is None and message.author.id not in self.to:
             self.to.set(message.author.id)
-            async with self.db.execute("select * from users where id = ?", (message.author.id, )) as c:
+            async with self.db.execute("select * from users where id = ?", (message.author.id,)) as c:
                 res = await c.fetchone()
                 ran = randint(15, 25)
                 if res is None:
@@ -80,19 +86,22 @@ class Useful(Bot):
                     increase = False
                 else:
                     await c.execute("update users set xp = xp + ? where id = ?", (ran, message.author.id))
-                    lvl1, lvl2 = features.levels.Levels.level_from_xp(res[2]), features.levels.Levels.level_from_xp(res[2] + ran)
+                    lvl1, lvl2 = features.levels.Levels.level_from_xp(res[2]), features.levels.Levels.level_from_xp(
+                        res[2] + ran)
                     if lvl1 != lvl2:
-                        try:
-                            await message.channel.send(embed=Embed(
-                                title="you leveled up!",
-                                description=f"**{lvl1}** -> **{lvl2}**",
-                                color=0xFF00AA
-                            ))
-                        except Forbidden:
-                            pass
+                        conf = await ServerConfig.load(self.db, message.guild.id)
+                        if conf.get("level_up", True):
+                            try:
+                                await message.channel.send(embed=Embed(
+                                    title="you leveled up!",
+                                    description=f"**{lvl1}** -> **{lvl2}**",
+                                    color=0xFF00AA
+                                ))
+                            except Forbidden:
+                                pass
+                        del conf
         else:
             await self.invoke(ctx)
-
 
     async def on_command_error(self, context, exception):
         if type(exception) == CommandNotFound:
@@ -167,13 +176,15 @@ async def _check(ctx: Context):
                 await ctx.bot.db.commit()
                 res = (ctx.author.id, False, 0, "")
             ctx.info = DBProxy(res)
+    if ctx.command.__original_kwargs__.get("requires_server_db", False):
+        ctx.conf = await ServerConfig.load(ctx.bot.db, ctx.guild.id)
 
 
 async def _closing(ctx: Context):
-    if not ctx.command.__original_kwargs__.get("requires_db", False):
-        return
-    await ctx.info.update(ctx.bot.db)
-    del ctx.info
+    if ctx.command.__original_kwargs__.get("requires_db", False):
+        await ctx.info.update(ctx.bot.db)
+    if ctx.command.__original_kwargs__.get("requires_server_db"):
+        await ctx.conf.dump(ctx.bot.db, ctx.guild.id)
 
 
 class DBProxy:
@@ -185,7 +196,7 @@ class DBProxy:
 
     @classmethod
     async def make(cls, db, id):
-        async with db.execute("select * from users where id = ?", (id, )) as c:
+        async with db.execute("select * from users where id = ?", (id,)) as c:
             res = await c.fetchone()
             if res is None:
                 res = (id, False, 0, "")
@@ -240,6 +251,31 @@ class DBProxy:
             list(upd.values()) + [self.id]
         )
         await db.execute(query[0], query[1])
+
+
+class ServerConfig(dict):
+    @classmethod
+    async def load(cls, db, id):
+        async with db.execute("select * from servers where id = ?", (id,)) as c:
+            res = await c.fetchone()
+            if res is None:
+                res = (id, json.dumps(default_config))
+                await c.execute("insert into servers values (?, ?)", res)
+            obj = cls(**json.loads(res[1]))
+            obj._orig = obj.copy()
+            return obj
+
+    async def dump(self, db, id):
+        if self._orig == self:
+            return
+        await db.execute("update servers set premium = ? where id = ?", (json.dumps(self), id))
+        del self
+
+    def __getitem__(self, item):
+        if item in self:
+            return super(ServerConfig, self).__getitem__(item)
+        else:
+            return default_config[item]
 
 
 if __name__ == '__main__':
