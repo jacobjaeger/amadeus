@@ -18,7 +18,7 @@ import features.levels
 import json
 
 default_config = {
-    "level_up": True
+    "levelUp": True
 }
 
 
@@ -90,7 +90,7 @@ class Useful(Bot):
                         res[2] + ran)
                     if lvl1 != lvl2:
                         conf = await ServerConfig.load(self.db, message.guild.id)
-                        if conf.get("level_up", True):
+                        if conf.get("levelUp", True):
                             try:
                                 await message.channel.send(embed=Embed(
                                     title="you leveled up!",

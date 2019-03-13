@@ -58,7 +58,7 @@ class Admin(Cog):
         if key is None:
             await ctx.send(embed=Embed(
                 title="here is a list of all the set config keys on this server",
-                description="\r\n".join([f"`{i}` -> `{ctx.conf[i]}`".lower() for i in ctx.bot.default_config]),
+                description="\r\n".join([f"`{i}` -> `{str(ctx.conf[i]).lower()}`" for i in ctx.bot.default_config]),
                 color=0xFF00AA
             ))
         elif value is None:
