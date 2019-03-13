@@ -2,7 +2,8 @@ from discord.ext.commands import Bot, CommandNotFound, MissingRequiredArgument, 
     Context, BadArgument
 from discord import Embed, Guild, Game, Forbidden
 import discord
-from os import listdir
+from os import listdir, getcwd
+from os.path import join
 from features.common import invalid_arg
 from json import load
 from argparse import FileType, ArgumentParser
@@ -34,7 +35,7 @@ class TimeoutExecutor:
 
 
 class Useful(Bot):
-    version = (2, 6)
+    version = (2, 7)
 
     def __init__(self, conf, *args, **kwargs):
         super(Useful, self).__init__(*args, **kwargs)
@@ -52,6 +53,10 @@ class Useful(Bot):
             db.execute("create table if not exists servers (id, premium)")
             db.execute("create table if not exists users (id, premium, xp, badges)")
         self.started = False
+        self.gif_sizes = {}
+        for action in listdir(join("docs", "gifs")):
+            self.gif_sizes[action] = len([i for i in listdir(join("docs", "gifs", action))])
+
 
     def log_error(self, msg):
         print(f"\033[31m{msg}\033[0m")
