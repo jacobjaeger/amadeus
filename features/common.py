@@ -1,6 +1,10 @@
 from discord import Embed
-from discord.ext.commands import Context, Bot, check, MissingPermissions
+from discord.ext.commands import Context, Bot, check, MissingPermissions, CommandError
 from aiohttp import ClientSession
+
+
+class NSFWError(CommandError):
+    pass
 
 
 async def get_nekos_life(category="classic"):
