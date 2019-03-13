@@ -131,6 +131,12 @@ class Useful(Bot):
                 description=str(exception),
                 color=0xFF0000
             ))
+        elif type(exception) == features.common.NSFWError:
+            await context.send(embed=Embed(
+                title="nsfw error",
+                description=str(exception),
+                color=0xFF0000
+            ))
         else:
             await context.send(embed=Embed(
                 title=f"an internal error occured ({type(exception).__name__})",

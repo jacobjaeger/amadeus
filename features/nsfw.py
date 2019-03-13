@@ -1,8 +1,16 @@
-from discord.ext.commands import Cog, command, Context, is_nsfw
-from discord import Embed
+from discord.ext.commands import Cog, command, Context, check
+from discord import Embed, TextChannel
 from aiohttp import ClientSession
-from .common import invalid_arg, get_nekos_life
+from .common import invalid_arg, get_nekos_life, NSFWError
 from random import choice
+
+
+def is_nsfw():
+    def pred(ctx):
+        if not (isinstance(ctx.channel, TextChannel) and ctx.channel.is_nsfw()):
+            raise NSFWError("you can't execute a nsfw command in a non-nsfw channel")
+        return True
+    return check(pred)
 
 
 class NSFW(Cog):
@@ -25,6 +33,14 @@ class NSFW(Cog):
     async def lewdneko(self, ctx: Context):
         em = Embed(color=0xFF00AA)
         em.set_image(url=await get_nekos_life("lewd"))
+        await ctx.send(embed=em)
+
+    @command("hentai", help="get a random hentai pic")
+    @is_nsfw()
+    async def hentai(self, ctx: Context):
+        em = Embed(color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("hentai"))
+        await ctx.send(embed=em)
 
 
 def setup(bot):

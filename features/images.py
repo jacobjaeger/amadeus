@@ -1,7 +1,7 @@
 from discord.ext.commands import Cog, command, Context
 from discord import Embed
 from aiohttp import ClientSession
-from .common import invalid_arg, get_nekos_life
+from .common import invalid_arg, get_nekos_life, NSFWError
 from random import choice
 from prawcore.exceptions import Redirect
 
@@ -95,12 +95,7 @@ class Images(Cog):
             ))
             return
         if sub.over18 and not ctx.channel.is_nsfw():  # If the requested sub is NSFW but the current channel is not, the bot is supposed to stop working
-            await ctx.send(embed=Embed(
-                title="nsfw error",
-                description="it seems like the sub you've request is nsfw while this channel is not, please try again in an nsfw channel",
-                color=0xFF0000
-            ))
-            return
+            raise NSFWError("it seems like the sub you've request is nsfw while this channel is not, please try again in an nsfw channel")
         em.set_image(url=choice([i for i in ctx.bot.reddit.subreddit(subreddit).hot(limit=50)]).url)
         await ctx.send(embed=em)
 
