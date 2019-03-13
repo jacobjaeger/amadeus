@@ -60,10 +60,7 @@ class Useful(Bot):
             db.execute("create table if not exists servers (id, premium)")
             db.execute("create table if not exists users (id, premium, xp, badges)")
         self.started = False
-        self.gif_sizes = {}
-        for action in listdir(join("docs", "gifs")):
-            self.gif_sizes[action] = len([i for i in listdir(join("docs", "gifs", action))])
-
+        
     def log_error(self, msg):
         print(f"\033[31m{msg}\033[0m")
 
