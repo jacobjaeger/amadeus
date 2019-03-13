@@ -29,6 +29,17 @@ class Roleplay(Cog):
             url=f"https://amadeus.jacobjaeger.net/gifs/kissing/{randint(0, ctx.bot.gif_sizes['kissing'] - 1)}.gif")
         await ctx.send(embed=em)
 
+    @command("slap", help="slap someone or get slapped")
+    async def slap(self, ctx: Context, user: Optional[Member] = None):
+        if user:
+            title = f"{user.mention} got slapped by {ctx.author.mention}"
+        else:
+            title = f"{ctx.author.mention} got slapped"
+        em = Embed(description=title, color=0xFF00AA)
+        em.set_image(
+            url=f"https://amadeus.jacobjaeger.net/gifs/slapping/{randint(0, ctx.bot.gif_sizes['slapping'] - 1)}.gif")
+        await ctx.send(embed=em)
+
 
 
 
