@@ -1,2 +1,0 @@
-# Amadeus 2.0
-the second iteration of the amadeus discord bot. add the official instance [here](https://bot.discord.io/amadeus) or host your own, ig. you can also join the support server [here](https://discord.io/amadeus)
