@@ -42,6 +42,49 @@ class NSFW(Cog):
         em.set_image(url=await get_nekos_life("hentai"))
         await ctx.send(embed=em)
 
+    @command("femdom", help="get a random femdom hentai pic")
+    @is_nsfw()
+    async def femdom(self, ctx: Context):
+        em = Embed(color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("femdom"))
+        await ctx.send(embed=em)
+
+    @command("boobs", help="get a random ecchi pic")
+    @is_nsfw()
+    async def boobs(self, ctx: Context):
+        em = Embed(color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("boobs"))
+        await ctx.send(embed=em)
+
+    @command("yuri", help="get a random yuri pic")
+    @is_nsfw()
+    async def yuri(self, ctx: Context):
+        em = Embed(color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("yuri"))
+        await ctx.send(embed=em)
+
+    @command("feet", help="get a random feet pic")
+    @is_nsfw()
+    async def feet(self, ctx: Context):
+        em = Embed(color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("feet"))
+        await ctx.send(embed=em)
+
+    @command("kitsune", help="get a random kitsune pic")
+    @is_nsfw()
+    async def kitsune(self, ctx: Context):
+        em = Embed(color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("lewdk"))
+        await ctx.send(embed=em)
+
+    @command("hentaigif", help="get a random hentai gif")
+    @is_nsfw()
+    async def hentaigif(self, ctx: Context):
+        em = Embed(color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("Random_hentai_gif"))
+        await ctx.send(embed=em)
+
+
 
 def setup(bot):
     bot.add_cog(NSFW())
