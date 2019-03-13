@@ -1,7 +1,7 @@
 from discord.ext.commands import Cog, command, Context
 from discord import Embed
 from aiohttp import ClientSession
-from .common import invalid_arg
+from .common import invalid_arg, get_nekos_life, NSFWError
 from random import choice
 from prawcore.exceptions import Redirect
 
@@ -11,6 +11,16 @@ class Images(Cog):
     async def neko(self, ctx: Context):
         async with ClientSession() as c:
             async with c.get("https://nekos.life/api/v2/img/neko") as r:
+                json = await r.json()
+                em = Embed(color=0xFF00AA)
+                em.set_author(name="here ya go")
+                em.set_image(url=json["url"])
+                await ctx.send(embed=em)
+
+    @command("nekogif", help="""shows a neko gif from [nekos.life](https://nekos.life)""")
+    async def nekogif(self, ctx: Context):
+        async with ClientSession() as c:
+            async with c.get("https://nekos.life/api/v2/img/ngif") as r:
                 json = await r.json()
                 em = Embed(color=0xFF00AA)
                 em.set_author(name="here ya go")
@@ -64,7 +74,6 @@ class Images(Cog):
                 em.set_image(url=json["image"])
                 await ctx.send(embed=em)
 
-
     @command("deepfried", help="shows a random deepfried meme")
     async def deepfried(self, ctx: Context):
         em = Embed(color=0xFF00AA)
@@ -86,12 +95,7 @@ class Images(Cog):
             ))
             return
         if sub.over18 and not ctx.channel.is_nsfw():  # If the requested sub is NSFW but the current channel is not, the bot is supposed to stop working
-            await ctx.send(embed=Embed(
-                title="nsfw error",
-                description="it seems like the sub you've request is nsfw while this channel is not, please try again in an nsfw channel",
-                color=0xFF0000
-            ))
-            return
+            raise NSFWError("it seems like the sub you've request is nsfw while this channel is not, please try again in an nsfw channel")
         em.set_image(url=choice([i for i in ctx.bot.reddit.subreddit(subreddit).hot(limit=50)]).url)
         await ctx.send(embed=em)
 

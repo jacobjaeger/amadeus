@@ -41,7 +41,7 @@ class TimeoutExecutor:
 
 
 class Useful(Bot):
-    version = (2, 7, 1)
+    version = (2, 8)
     default_config = default_config
 
     def __init__(self, conf, *args, **kwargs):
@@ -128,6 +128,12 @@ class Useful(Bot):
         elif type(exception) == BadArgument:
             await context.send(embed=Embed(
                 title="invalid arguments",
+                description=str(exception),
+                color=0xFF0000
+            ))
+        elif type(exception) == features.common.NSFWError:
+            await context.send(embed=Embed(
+                title="nsfw error",
                 description=str(exception),
                 color=0xFF0000
             ))
