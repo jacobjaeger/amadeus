@@ -13,6 +13,13 @@ class NSFW(Cog):
         em.set_image(url=await get_nekos_life("trap"))
         await ctx.send(embed=em)
 
+    @command("nsfwneko", help="traps aren't gay")
+    @is_nsfw()
+    async def neko(self, ctx: Context):
+        em = Embed(title="traps aren't gay", color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("trap"))
+        await ctx.send(embed=em)
+
 
 def setup(bot):
     bot.add_cog(NSFW())
