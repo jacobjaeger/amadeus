@@ -1,7 +1,7 @@
 from discord.ext.commands import Cog, command, Context
 from discord import Embed
 from aiohttp import ClientSession
-from .common import invalid_arg
+from .common import invalid_arg, get_nekos_life
 from random import choice
 from prawcore.exceptions import Redirect
 
@@ -11,6 +11,16 @@ class Images(Cog):
     async def neko(self, ctx: Context):
         async with ClientSession() as c:
             async with c.get("https://nekos.life/api/v2/img/neko") as r:
+                json = await r.json()
+                em = Embed(color=0xFF00AA)
+                em.set_author(name="here ya go")
+                em.set_image(url=json["url"])
+                await ctx.send(embed=em)
+
+    @command("nekogif", help="""shows a neko gif from [nekos.life](https://nekos.life)""")
+    async def nekogif(self, ctx: Context):
+        async with ClientSession() as c:
+            async with c.get("https://nekos.life/api/v2/img/ngif") as r:
                 json = await r.json()
                 em = Embed(color=0xFF00AA)
                 em.set_author(name="here ya go")
@@ -63,7 +73,6 @@ class Images(Cog):
                 em.set_author(name="here ya go")
                 em.set_image(url=json["image"])
                 await ctx.send(embed=em)
-
 
     @command("deepfried", help="shows a random deepfried meme")
     async def deepfried(self, ctx: Context):
