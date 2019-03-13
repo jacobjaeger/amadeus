@@ -206,7 +206,7 @@ class DBProxy:
             res = await c.fetchone()
             if res is None:
                 res = (id, False, 0, "")
-                await c.execute("insert into users values (?, ?, ?, ?)")
+                await c.execute("insert into users values (?, ?, ?, ?)", res)
             return cls(res)
 
     @property
