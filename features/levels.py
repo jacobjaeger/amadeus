@@ -39,7 +39,7 @@ class Levels(Cog):
 
     @staticmethod
     def xp_for_increase(level):
-        return 125 + sum([i * 5 for i in range(level + 1)])
+        return 125 + 5 * level  # sum([i * 5 for i in range(level + 1)])
 
     def make_pp(self, prog, step, stop):
         if prog >= step / stop:
