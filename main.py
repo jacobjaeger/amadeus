@@ -70,12 +70,12 @@ class Useful(Bot):
 
     async def on_message(self, message: discord.Message):
         if not self.bot_active:
-            return 
+            return
         if message.author.bot:
             return
         if type(message.channel) == DMChannel:
             await message.channel.send(embed=Embed(
-                title="you cannot send this bot messages in dm's",
+                title="you cannot send this bot messages in dms",
                 color=0xFF0000
             ))
         ctx: Context = await self.get_context(message)

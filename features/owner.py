@@ -72,6 +72,16 @@ class Owner(Cog):
             color=0x00FF00
         ))
 
+    @command("quarantine", hidden=True)
+    @is_owner()
+    async def quarantine(self, ctx: Context):
+        ctx.bot.bot_active = False
+        await ctx.send(embed=Embed(
+            title="bot quarantined",
+            description="the bot will ignore all messages",
+            color=0xFF0000
+        ))
+
 
 
 def setup(bot):
