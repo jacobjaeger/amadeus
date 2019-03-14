@@ -79,6 +79,16 @@ class Roleplay(Cog):
         em.set_image(url=await get_nekos_life("smug"))
         await ctx.send(embed=em)
 
+    @command("tickle", help="tickle someone or get tickled")
+    async def tickle(self, ctx: Context, user: Optional[Member] = None):
+        if user:
+            title = f"{user.mention} got tickled by {ctx.author.mention}"
+        else:
+            title = f"{ctx.author.mention} got tickled"
+        em = Embed(description=title, color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("tickle"))
+        await ctx.send(embed=em)
+
 
 
 
