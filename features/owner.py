@@ -3,11 +3,11 @@ from discord import Embed, Message
 from aiohttp import ClientSession
 from .common import invalid_arg
 from random import choice
-from ..main import update
-from sys import argv
+from sys import argv, stdout, stderr
 from os import execvp
 import asyncio
 import async_timeout
+import subprocess
 
 
 class Owner(Cog):
@@ -99,7 +99,14 @@ class Owner(Cog):
             description="downloading updates",
             color=0xFF00AA
         ))
-        update(ctx.bot.conf)
+        proc = subprocess.Popen("git pull".split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+        proc.wait()
+        if proc.returncode:
+            await msg.edit(embed=Embed(
+                title="updating bot...", description="failed to update", color=0xFF0000)
+            )
+            ctx.bot.bot_active = True
+            return
         await msg.edit(embed=Embed(
             title="updating bot...",
             description="restarting bot",
