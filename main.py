@@ -1,5 +1,5 @@
 from discord.ext.commands import Bot, CommandNotFound, MissingRequiredArgument, MissingPermissions, CommandInvokeError, \
-    Context, BadArgument
+    Context, BadArgument, NotOwner
 from discord import Embed, Guild, Game, Forbidden
 import discord
 from os import listdir, getcwd
@@ -105,7 +105,7 @@ class Useful(Bot):
             return
         elif type(exception) == MissingRequiredArgument:
             await invalid_arg(context)
-        elif type(exception) == MissingPermissions:
+        elif type(exception) in (MissingPermissions, NotOwner):
             await context.send(embed=Embed(
                 title="wait! that's illegal!",
                 description=str(exception).lower(),
