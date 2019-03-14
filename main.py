@@ -41,7 +41,7 @@ class TimeoutExecutor:
 
 
 class Useful(Bot):
-    version = (2, 8, 1)
+    version = (2, 9)
     default_config = default_config
 
     def __init__(self, conf, *args, **kwargs):
