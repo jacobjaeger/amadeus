@@ -56,7 +56,7 @@ class Useful(Bot):
             user_agent=conf["reddit"]["user_agent"]
         )
         self.sudo = False
-        with sqlite3.connect(conf["dbf"]) as db:
+        with sqlite3.connect(conf["invoke"].db.name) as db:
             db.execute("create table if not exists servers (id, premium)")
             db.execute("create table if not exists users (id, premium, xp, badges)")
         self.started = False
@@ -289,26 +289,3 @@ class ServerConfig(dict):
         else:
             return default_config[item]
 
-
-if __name__ == '__main__':
-    argp = ArgumentParser("amadeus")
-    argp.add_argument("--config", type=FileType("r"), default="config.json", dest="f")
-    argp.add_argument("--database", type=FileType("r"), default="amadeus.db", dest="db")
-    conf = argp.parse_args()
-    dbf = conf.db.name
-    conf.db.close()
-    with conf.f as f:
-        config = load(f)
-    config["dbf"] = dbf
-    useful = Useful(config, ("a!", "<@373252109753384960> "))
-    useful.before_invoke(_check)
-    useful.after_invoke(_closing)
-    for i in listdir("features"):
-        if i != "__pycache__":
-            useful.load_extension("features." + (i if not i.endswith(".py") else i[:-3]))
-    try:
-        useful.run(config["token"])
-    finally:
-        useful.db._loop = new_event_loop()
-        useful.db._loop.run_until_complete(useful.db.commit())
-        useful.db._loop.run_until_complete(useful.db.__aexit__(None, None, None))
