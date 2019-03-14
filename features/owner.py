@@ -3,6 +3,9 @@ from discord import Embed, Message
 from aiohttp import ClientSession
 from .common import invalid_arg
 from random import choice
+from ..main import update
+from sys import argv
+from os import execvp
 import asyncio
 import async_timeout
 
@@ -81,6 +84,32 @@ class Owner(Cog):
             description="the bot will ignore all messages",
             color=0xFF0000
         ))
+
+    @command("update", hidden=True)
+    @is_owner()
+    async def update(self, ctx: Context):
+        msg = await ctx.send(embed=Embed(
+            title="updating bot...",
+            description="deactivating message handler",
+            color=0xFF00AA
+        ))
+        ctx.bot.bot_active = False
+        await msg.edit(embed=Embed(
+            title="updating bot...",
+            description="downloading updates",
+            color=0xFF00AA
+        ))
+        update(ctx.bot.conf)
+        await msg.edit(embed=Embed(
+            title="updating bot...",
+            description="restarting bot",
+            color=0x00FF00
+        ))
+        await ctx.bot.logout()
+        await ctx.bot.close()
+        execvp(argv[0], argv)
+
+
 
 
 
