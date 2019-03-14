@@ -56,7 +56,7 @@ class Useful(Bot):
             user_agent=conf["reddit"]["user_agent"]
         )
         self.sudo = False
-        with sqlite3.connect(conf["invoke"].db.name) as db:
+        with sqlite3.connect(conf["dbf"]) as db:
             db.execute("create table if not exists servers (id, premium)")
             db.execute("create table if not exists users (id, premium, xp, badges)")
         self.started = False

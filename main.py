@@ -46,13 +46,14 @@ if __name__ == '__main__':
     argp = argparse.ArgumentParser("amadeus")
     argp.add_argument("--config", type=argparse.FileType("r"), default="config.json", dest="f")
     argp.add_argument("--database", type=argparse.FileType("r"), default="amadeus.db", dest="db")
-    argp.add_argument("action", type=str, dest="action")
+    argp.add_argument("action", type=str)
     conf = argp.parse_args()
     dbf = conf.db.name
     conf.db.close()
     with conf.f as f:
         config = json.load(f)
     config["invoke"] = conf
+    config["dbf"] = dbf
     if conf.action not in actions:
         sys.stderr.write(f"error: unknown action: {conf.action}\n")
         sys.exit(1)
