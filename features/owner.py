@@ -51,6 +51,28 @@ class Owner(Cog):
         )
         await msg.edit(embed=newem)
 
+    @command("sql", hidden=True)
+    @is_owner()
+    async def sql(self, ctx: Context, *, query):
+        msg: Message = await ctx.send(embed=Embed(
+            title="querying database...",
+            description=f"```$ {query}```",
+            color=0xFF00AA
+        ))
+        async with ctx.bot.db.execute(query) as c:
+            rawres = await c.fetchall()
+            rstr = ""
+            for i in rawres:
+                rstr += str(i)[1:-1] + "\n"
+        if len(rstr) >= 2044 - len(query):
+            rstr = rstr[:-(len(query) + 7)] + "..."
+        await msg.edit(embed=Embed(
+            title="queried database",
+            description=f"```$ {query}\n\n{rstr}```",
+            color=0x00FF00
+        ))
+
+
 
 def setup(bot):
     bot.add_cog(Owner())
