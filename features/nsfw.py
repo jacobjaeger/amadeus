@@ -84,6 +84,13 @@ class NSFW(Cog):
         em.set_image(url=await get_nekos_life("Random_hentai_gif"))
         await ctx.send(embed=em)
 
+    @command("anal", help="get a random anal hentai picture/gif")
+    @is_nsfw()
+    async def anal(self, ctx: Context):
+        em = Embed(color=0xFF00AA)
+        em.set_image(url=await get_nekos_life("anal"))
+        await ctx.send(embed=em)
+
 
 
 def setup(bot):
