@@ -1,6 +1,6 @@
 from discord.ext.commands import Bot, CommandNotFound, MissingRequiredArgument, MissingPermissions, CommandInvokeError, \
-    Context, BadArgument
-from discord import Embed, Guild, Game, Forbidden
+    Context, BadArgument, NotOwner
+from discord import Embed, Guild, Game, Forbidden, DMChannel
 import discord
 from os import listdir, getcwd
 from os.path import join
@@ -41,7 +41,7 @@ class TimeoutExecutor:
 
 
 class Useful(Bot):
-    version = (2, 8, 1)
+    version = (2, 9)
     default_config = default_config
 
     def __init__(self, conf, *args, **kwargs):
@@ -60,6 +60,7 @@ class Useful(Bot):
             db.execute("create table if not exists servers (id, premium)")
             db.execute("create table if not exists users (id, premium, xp, badges)")
         self.started = False
+        self.bot_active = False
         
     def log_error(self, msg):
         print(f"\033[31m{msg}\033[0m")
@@ -68,8 +69,15 @@ class Useful(Bot):
         print(f"\033[36m{msg}\033[0m")
 
     async def on_message(self, message: discord.Message):
+        if not self.bot_active:
+            return
         if message.author.bot:
             return
+        if type(message.channel) == DMChannel:
+            await message.channel.send(embed=Embed(
+                title="you cannot send this bot messages in dms",
+                color=0xFF0000
+            ))
         ctx: Context = await self.get_context(message)
         if ctx.command is None and message.author.id not in self.to:
             self.to.set(message.author.id)
@@ -105,7 +113,7 @@ class Useful(Bot):
             return
         elif type(exception) == MissingRequiredArgument:
             await invalid_arg(context)
-        elif type(exception) == MissingPermissions:
+        elif type(exception) in (MissingPermissions, NotOwner):
             await context.send(embed=Embed(
                 title="wait! that's illegal!",
                 description=str(exception).lower(),
@@ -151,6 +159,7 @@ class Useful(Bot):
             await self.db.__aenter__()
             self.started = True
         self.log("bot is ready")
+        self.bot_active = True
 
     async def on_guild_join(self, server: Guild):
         self.log("joined server")
