@@ -99,8 +99,8 @@ class Owner(Cog):
             description="downloading updates",
             color=0xFF00AA
         ))
-        proc = subprocess.Popen("git pull".split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
-        proc.wait()
+        proc = await asyncio.create_subprocess_shell("git pull", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = await proc.communicate()
         if proc.returncode:
             await msg.edit(embed=Embed(
                 title="updating bot...", description="failed to update", color=0xFF0000)
@@ -112,12 +112,17 @@ class Owner(Cog):
             description="restarting bot",
             color=0x00FF00
         ))
-        await ctx.bot.logout()
-        await ctx.bot.close()
-        execvp(argv[0], argv)
-
-
-
+        try:
+            ctx.bot.loop.run_until_complete(ctx.bot.logout())
+        except:
+            pass
+        try:
+            ctx.bot.loop.run_until_complete(ctx.bot.close())
+        except:
+            pass
+        await ctx.bot.db.commit()
+        await ctx.bot.db.__aexit__(None, None, None)
+        execvp("python3.6", ["python3.6", *argv])
 
 
 def setup(bot):
